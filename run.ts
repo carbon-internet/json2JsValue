@@ -1,20 +1,19 @@
 
-function handlevalue(value: Object, tabs: String) {
+function json2JsValue(value: any, tabs: string = '') {
     let newtabs = tabs+'  '
 
-    if(typeof value === 'object') {
+    if(Array.isArray(value)) {
 
-        // let entries = Object.entries(value);
-
-        let entries = Object.keys(value).map( x => `\n${newtabs}"${x}" -> ${handlevalue(value[x], newtabs)}` );
-
-
-        return 'Json.obj(' + entries.join(',') + '\n' + tabs + ')';
+        let elements = value.map( v => json2JsValue(v, newtabs) );
+        return `Json.arr(\n${newtabs}` + elements.join(`,\n${newtabs}`) + '\n' + tabs + ')';
     }
-    //[.format(newtabs, k, handlevalue(v, newtabs)) for k, v in value.items()]
+    else if(typeof value === 'object') {
 
-    // ','.join()
-
+        let properties = Object.keys(value).map( x => `\n${newtabs}"${x}" -> ${json2JsValue(value[x], newtabs)}` );
+        return 'Json.obj(' + properties.join(',') + '\n' + tabs + ')';
+    }
+    else if(typeof value === 'string') return `"${value}"`;
+    else return String(value).toLowerCase();
 }
 
 let v = {
@@ -30,4 +29,4 @@ let v = {
     ]
 }
 
-console.log(handlevalue(v, '  '));
+console.log(json2JsValue(v));
